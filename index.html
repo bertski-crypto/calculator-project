@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A modern responsive calculator built with HTML, CSS and JavaScript.">
+  <title>Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <section class="calculator" aria-label="Calculator">
+      <div class="display" aria-live="polite">
+        <div id="expression" class="expression"></div>
+        <div id="display" class="display-value">0</div>
+      </div>
+
+      <div class="keys">
+        <button type="button" class="key utility" data-action="clear">AC</button>
+        <button type="button" class="key utility" data-action="delete" aria-label="Delete">⌫</button>
+        <button type="button" class="key utility" data-action="percent">%</button>
+        <button type="button" class="key operator" data-value="/">÷</button>
+
+        <button type="button" class="key" data-value="7">7</button>
+        <button type="button" class="key" data-value="8">8</button>
+        <button type="button" class="key" data-value="9">9</button>
+        <button type="button" class="key operator" data-value="*">×</button>
+
+        <button type="button" class="key" data-value="4">4</button>
+        <button type="button" class="key" data-value="5">5</button>
+        <button type="button" class="key" data-value="6">6</button>
+        <button type="button" class="key operator" data-value="-">−</button>
+
+        <button type="button" class="key" data-value="1">1</button>
+        <button type="button" class="key" data-value="2">2</button>
+        <button type="button" class="key" data-value="3">3</button>
+        <button type="button" class="key operator" data-value="+">+</button>
+
+        <button type="button" class="key utility" data-action="sign">+/−</button>
+        <button type="button" class="key" data-value="0">0</button>
+        <button type="button" class="key" data-action="decimal">.</button>
+        <button type="button" class="key equals" data-action="equals">=</button>
+      </div>
+      <p id="status" class="status" role="status"></p>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
