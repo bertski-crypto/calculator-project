@@ -15,6 +15,7 @@
           <p class="eyebrow">Everyday math</p>
           <h1>Calculator</h1>
         </div>
+        <button type="button" id="mode-toggle" class="mode-toggle" aria-pressed="false">Scientific mode</button>
         <div class="theme-picker">
           <span class="theme-label">Theme</span>
           <div class="theme-options" role="group" aria-label="Choose a calculator theme">
@@ -44,6 +45,20 @@
         <button type="button" class="key utility" data-action="delete" aria-label="Delete">⌫</button>
         <button type="button" class="key utility" data-action="percent">%</button>
         <button type="button" class="key operator" data-value="/">÷</button>
+
+        <div class="scientific-row" aria-label="Scientific functions">
+          <button type="button" class="key scientific-key" data-scientific="sin(">sin</button>
+          <button type="button" class="key scientific-key" data-scientific="cos(">cos</button>
+          <button type="button" class="key scientific-key" data-scientific="tan(">tan</button>
+          <button type="button" class="key scientific-key" data-scientific="log(">log</button>
+          <button type="button" class="key scientific-key" data-scientific="ln(">ln</button>
+          <button type="button" class="key scientific-key" data-scientific="sqrt(">√</button>
+          <button type="button" class="key scientific-key" data-scientific="^2">x²</button>
+          <button type="button" class="key scientific-key" data-scientific="^">xʸ</button>
+          <button type="button" class="key scientific-key" data-scientific="PI">π</button>
+          <button type="button" class="key scientific-key" data-scientific="(">(</button>
+          <button type="button" class="key scientific-key" data-scientific=")">)</button>
+        </div>
 
         <button type="button" class="key" data-value="7">7</button>
         <button type="button" class="key" data-value="8">8</button>

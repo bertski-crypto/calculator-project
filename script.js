@@ -5,6 +5,8 @@
   const expression = document.getElementById("expression");
   const status = document.getElementById("status");
   const keys = document.querySelector(".keys");
+  const calculator = document.querySelector(".calculator");
+  const modeToggle = document.getElementById("mode-toggle");
   const themeOptions = document.querySelectorAll(".theme-option");
   const themeStorageKey = "calculator-theme";
 
@@ -13,6 +15,7 @@
   let operator = null;
   let waitingForOperand = false;
   let justCalculated = false;
+  let scientificExpression = "";
 
   const operatorSymbols = { "+": "+", "-": "−", "*": "×", "/": "÷" };
 
@@ -32,6 +35,11 @@
   }
 
   function updateDisplay() {
+    if (calculator.classList.contains("scientific")) {
+      expression.textContent = "";
+      display.textContent = scientificExpression || "0";
+      return;
+    }
     display.textContent = current;
     if (stored !== null && operator) {
       expression.textContent = `${formatNumber(stored)} ${operatorSymbols[operator]}`;
@@ -43,6 +51,111 @@
   function formatNumber(value) {
     if (!Number.isFinite(value)) return "Error";
     return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(12)));
+  }
+
+  function evaluateScientific(source) {
+    const input = source.replace(/\s+/g, "");
+    let position = 0;
+
+    function peek() { return input[position]; }
+    function match(value) {
+      if (input.slice(position, position + value.length) === value) {
+        position += value.length;
+        return true;
+      }
+      return false;
+    }
+    function parseExpression() {
+      let value = parseTerm();
+      while (peek() === "+" || peek() === "-") {
+        const operatorValue = input[position++];
+        const right = parseTerm();
+        value = operatorValue === "+" ? value + right : value - right;
+      }
+      return value;
+    }
+    function parseTerm() {
+      let value = parsePower();
+      while (peek() === "*" || peek() === "/") {
+        const operatorValue = input[position++];
+        const right = parsePower();
+        if (operatorValue === "/" && right === 0) throw new Error("Cannot divide by zero");
+        value = operatorValue === "*" ? value * right : value / right;
+      }
+      return value;
+    }
+    function parsePower() {
+      const value = parseUnary();
+      if (match("^")) return Math.pow(value, parsePower());
+      return value;
+    }
+    function parseUnary() {
+      if (match("+")) return parseUnary();
+      if (match("-")) return -parseUnary();
+      return parsePrimary();
+    }
+    function parsePrimary() {
+      if (match("(")) {
+        const value = parseExpression();
+        if (!match(")")) throw new Error("Missing closing parenthesis");
+        return value;
+      }
+      const functionMatch = input.slice(position).match(/^(sin|cos|tan|log|ln|sqrt)\(/);
+      if (functionMatch) {
+        position += functionMatch[0].length;
+        const value = parseExpression();
+        if (!match(")")) throw new Error("Missing closing parenthesis");
+        const name = functionMatch[1];
+        if (name === "sqrt" && value < 0) throw new Error("Invalid square root");
+        if ((name === "log" || name === "ln") && value <= 0) throw new Error("Invalid logarithm");
+        if (name === "sin") return Math.sin(value);
+        if (name === "cos") return Math.cos(value);
+        if (name === "tan") return Math.tan(value);
+        if (name === "log") return Math.log10(value);
+        if (name === "ln") return Math.log(value);
+        return Math.sqrt(value);
+      }
+      if (match("PI")) return Math.PI;
+      const numberMatch = input.slice(position).match(/^(?:\d+(?:\.\d*)?|\.\d+)/);
+      if (!numberMatch) throw new Error("Incomplete expression");
+      position += numberMatch[0].length;
+      return Number(numberMatch[0]);
+    }
+
+    const result = parseExpression();
+    if (position !== input.length || !Number.isFinite(result)) throw new Error("Invalid expression");
+    return result;
+  }
+
+  function inputScientific(value) {
+    showStatus("");
+    if (justCalculated) {
+      scientificExpression = "";
+      justCalculated = false;
+    }
+    scientificExpression += value;
+    updateDisplay();
+  }
+
+  function scientificEquals() {
+    if (!scientificExpression) return;
+    try {
+      const result = evaluateScientific(scientificExpression);
+      expression.textContent = scientificExpression;
+      scientificExpression = formatNumber(result);
+      justCalculated = true;
+      updateDisplay();
+      showStatus("");
+    } catch (error) {
+      showStatus(error.message);
+    }
+  }
+
+  function setMode(scientific) {
+    calculator.classList.toggle("scientific", scientific);
+    modeToggle.setAttribute("aria-pressed", String(scientific));
+    modeToggle.textContent = scientific ? "Standard mode" : "Scientific mode";
+    clearAll();
   }
 
   function showStatus(message = "") {
@@ -140,6 +253,7 @@
     operator = null;
     waitingForOperand = false;
     justCalculated = false;
+    scientificExpression = "";
     showStatus("");
     updateDisplay();
   }
@@ -173,6 +287,18 @@
   }
 
   function handleAction(action) {
+    if (calculator.classList.contains("scientific")) {
+      if (action === "clear") clearAll();
+      else if (action === "delete") {
+        scientificExpression = scientificExpression.slice(0, -1);
+        updateDisplay();
+      } else if (action === "decimal") inputScientific(".");
+      else if (action === "sign") inputScientific("-");
+      else if (action === "percent") inputScientific("/100");
+      else if (action === "equals") scientificEquals();
+      return;
+    }
+
     if (action === "clear") clearAll();
     else if (action === "delete") deleteLast();
     else if (action === "decimal") inputDecimal();
@@ -187,9 +313,16 @@
 
     const value = button.dataset.value;
     const action = button.dataset.action;
+    const scientificValue = button.dataset.scientific;
+
+    if (scientificValue !== undefined) {
+      inputScientific(scientificValue);
+      return;
+    }
 
     if (value !== undefined) {
-      if (/^[0-9]$/.test(value)) inputDigit(value);
+      if (calculator.classList.contains("scientific")) inputScientific(value);
+      else if (/^[0-9]$/.test(value)) inputDigit(value);
       else chooseOperator(value);
     } else if (action) {
       handleAction(action);
@@ -200,19 +333,26 @@
     option.addEventListener("click", () => setTheme(option.dataset.theme));
   });
 
+  modeToggle.addEventListener("click", () => {
+    setMode(!calculator.classList.contains("scientific"));
+  });
+
   document.addEventListener("keydown", (event) => {
     if (/^[0-9]$/.test(event.key)) {
-      inputDigit(event.key);
+      if (calculator.classList.contains("scientific")) inputScientific(event.key);
+      else inputDigit(event.key);
       return;
     }
 
     if (event.key === ".") {
-      inputDecimal();
+      if (calculator.classList.contains("scientific")) inputScientific(".");
+      else inputDecimal();
       return;
     }
 
     if (["+", "-", "*", "/"].includes(event.key)) {
-      chooseOperator(event.key);
+      if (calculator.classList.contains("scientific")) inputScientific(event.key);
+      else chooseOperator(event.key);
       return;
     }
 
@@ -223,12 +363,16 @@
 
     if (event.key === "Enter" || event.key === "=") {
       event.preventDefault();
-      equals();
+      if (calculator.classList.contains("scientific")) scientificEquals();
+      else equals();
       return;
     }
 
     if (event.key === "Backspace") {
-      deleteLast();
+      if (calculator.classList.contains("scientific")) {
+        scientificExpression = scientificExpression.slice(0, -1);
+        updateDisplay();
+      } else deleteLast();
       return;
     }
 
