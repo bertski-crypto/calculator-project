@@ -10,6 +10,30 @@
 <body>
   <main class="app">
     <section class="calculator" aria-label="Calculator">
+      <header class="calculator-header">
+        <div>
+          <p class="eyebrow">Everyday math</p>
+          <h1>Calculator</h1>
+        </div>
+        <div class="theme-picker">
+          <span class="theme-label">Theme</span>
+          <div class="theme-options" role="group" aria-label="Choose a calculator theme">
+            <button type="button" class="theme-option theme-option--sunset" data-theme="sunset" aria-label="Sunset theme" aria-pressed="true">
+              <span aria-hidden="true"></span>
+            </button>
+            <button type="button" class="theme-option theme-option--ocean" data-theme="ocean" aria-label="Ocean theme" aria-pressed="false">
+              <span aria-hidden="true"></span>
+            </button>
+            <button type="button" class="theme-option theme-option--forest" data-theme="forest" aria-label="Forest theme" aria-pressed="false">
+              <span aria-hidden="true"></span>
+            </button>
+            <button type="button" class="theme-option theme-option--midnight" data-theme="midnight" aria-label="Midnight theme" aria-pressed="false">
+              <span aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+      </header>
+
       <div class="display" aria-live="polite">
         <div id="expression" class="expression"></div>
         <div id="display" class="display-value">0</div>

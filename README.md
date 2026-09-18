@@ -12,6 +12,7 @@ A modern, responsive calculator built with **HTML5, CSS3, and Vanilla JavaScript
 - Keyboard support
 - Division-by-zero handling
 - Responsive desktop and mobile UI
+- Four selectable themes with saved preference
 - No database, backend, API, or external dependency
 
 ## Project Structure

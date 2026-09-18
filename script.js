@@ -5,6 +5,8 @@
   const expression = document.getElementById("expression");
   const status = document.getElementById("status");
   const keys = document.querySelector(".keys");
+  const themeOptions = document.querySelectorAll(".theme-option");
+  const themeStorageKey = "calculator-theme";
 
   let current = "0";
   let stored = null;
@@ -13,6 +15,21 @@
   let justCalculated = false;
 
   const operatorSymbols = { "+": "+", "-": "−", "*": "×", "/": "÷" };
+
+  function setTheme(theme, persist = true) {
+    const selectedTheme = [...themeOptions].some((option) => option.dataset.theme === theme)
+      ? theme
+      : "sunset";
+
+    document.body.dataset.theme = selectedTheme;
+    themeOptions.forEach((option) => {
+      option.setAttribute("aria-pressed", String(option.dataset.theme === selectedTheme));
+    });
+
+    if (persist) {
+      localStorage.setItem(themeStorageKey, selectedTheme);
+    }
+  }
 
   function updateDisplay() {
     display.textContent = current;
@@ -179,6 +196,10 @@
     }
   });
 
+  themeOptions.forEach((option) => {
+    option.addEventListener("click", () => setTheme(option.dataset.theme));
+  });
+
   document.addEventListener("keydown", (event) => {
     if (/^[0-9]$/.test(event.key)) {
       inputDigit(event.key);
@@ -216,5 +237,6 @@
     }
   });
 
+  setTheme(localStorage.getItem(themeStorageKey) || "sunset", false);
   updateDisplay();
 })();

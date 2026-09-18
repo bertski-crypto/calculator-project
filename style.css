@@ -1,8 +1,9 @@
 * { box-sizing: border-box; }
 
 :root {
-  --bg: #f4f5f7;
-  --calculator: #ffffff;
+  --bg-start: #f4f5f7;
+  --bg-end: #ffe9f2;
+  --calculator: rgba(255, 255, 255, .86);
   --display: #17191d;
   --display-text: #ffffff;
   --button: #eef0f3;
@@ -15,6 +16,65 @@
   --text: #20242a;
   --muted: #6b7280;
   --border: #e5e7eb;
+  --accent: #d9367a;
+  --focus: #7c3aed;
+}
+
+body[data-theme="ocean"] {
+  --bg-start: #e8f4ff;
+  --bg-end: #d8e7ff;
+  --calculator: rgba(248, 252, 255, .88);
+  --display: #10243b;
+  --button: #e7f0fb;
+  --button-hover: #d5e4f6;
+  --utility: #d3e1f1;
+  --operator: #1787c7;
+  --operator-hover: #0d72ad;
+  --equals: #3157d8;
+  --equals-hover: #2548be;
+  --text: #162a42;
+  --muted: #55708d;
+  --border: #cbdced;
+  --accent: #3157d8;
+  --focus: #1787c7;
+}
+
+body[data-theme="forest"] {
+  --bg-start: #edf7ef;
+  --bg-end: #d9eee1;
+  --calculator: rgba(250, 255, 251, .9);
+  --display: #172a24;
+  --button: #e6f0e9;
+  --button-hover: #d4e6da;
+  --utility: #d1e3d7;
+  --operator: #238b68;
+  --operator-hover: #197456;
+  --equals: #d17b35;
+  --equals-hover: #b96525;
+  --text: #1d342b;
+  --muted: #5c786b;
+  --border: #c9dfd0;
+  --accent: #d17b35;
+  --focus: #238b68;
+}
+
+body[data-theme="midnight"] {
+  --bg-start: #182033;
+  --bg-end: #30264d;
+  --calculator: rgba(25, 31, 50, .92);
+  --display: #0d1220;
+  --button: #29334d;
+  --button-hover: #354261;
+  --utility: #38445f;
+  --operator: #8067e8;
+  --operator-hover: #6d53d5;
+  --equals: #e85d9b;
+  --equals-hover: #d44888;
+  --text: #f1f4ff;
+  --muted: #aeb8d1;
+  --border: #3b4661;
+  --accent: #e85d9b;
+  --focus: #a897ff;
 }
 
 body {
@@ -23,9 +83,10 @@ body {
   display: grid;
   place-items: center;
   padding: 24px;
-  background: linear-gradient(135deg, #f4f5f7, #ffe9f2);
+  background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
   font-family: Arial, Helvetica, sans-serif;
   color: var(--text);
+  transition: background .3s ease, color .3s ease;
 }
 
 .app { width: min(100%, 420px); }
@@ -36,6 +97,81 @@ body {
   border-radius: 28px;
   padding: 18px;
   box-shadow: 0 20px 50px rgba(0,0,0,.12);
+  backdrop-filter: blur(16px);
+  transition: background .3s ease, border-color .3s ease;
+}
+
+.calculator-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 2px 3px 16px;
+}
+
+.eyebrow {
+  margin: 0 0 3px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: -.03em;
+}
+
+.theme-picker {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.theme-label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.theme-options {
+  display: flex;
+  gap: 6px;
+}
+
+.theme-option {
+  width: 25px;
+  height: 25px;
+  padding: 3px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.theme-option span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35);
+}
+
+.theme-option--sunset span { background: linear-gradient(135deg, #ff8a3d, #d9367a); }
+.theme-option--ocean span { background: linear-gradient(135deg, #1787c7, #3157d8); }
+.theme-option--forest span { background: linear-gradient(135deg, #238b68, #d17b35); }
+.theme-option--midnight span { background: linear-gradient(135deg, #8067e8, #e85d9b); }
+
+.theme-option:hover { transform: translateY(-2px); }
+.theme-option[aria-pressed="true"] {
+  box-shadow: 0 0 0 2px var(--calculator), 0 0 0 4px var(--accent);
+}
+.theme-option:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
 }
 
 .display {
@@ -49,6 +185,7 @@ body {
   flex-direction: column;
   justify-content: flex-end;
   overflow: hidden;
+  transition: background .3s ease;
 }
 
 .expression {
@@ -89,7 +226,7 @@ body {
 
 .key:hover { background: var(--button-hover); }
 .key:active { transform: scale(.96); }
-.key:focus-visible { outline: 3px solid #7c3aed; outline-offset: 2px; }
+.key:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
 .key.utility { background: var(--utility); }
 .key.operator { background: var(--operator); color: #fff; }
@@ -108,5 +245,6 @@ body {
 @media (max-width: 380px) {
   body { padding: 12px; }
   .calculator { padding: 12px; border-radius: 22px; }
+  .calculator-header { align-items: flex-start; flex-direction: column; }
   .key { min-height: 58px; border-radius: 15px; }
 }
